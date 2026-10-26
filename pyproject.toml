@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "regime-hmm-engine"
+version = "0.1.0"
+description = "Log-space Gaussian Hidden Markov Model in pure PyTorch, benchmarked on market regime detection (SPY) and EEG sleep staging (PhysioNet Sleep-EDF)."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["hidden-markov-model", "baum-welch", "viterbi", "regime-detection", "sleep-staging", "pytorch"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "torch>=2.1",
+    "polars>=1.0",
+    "mne>=1.5",
+    "yfinance>=0.2.40",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "numpy>=1.24",
+    "pytest>=7.4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hmm_engine"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

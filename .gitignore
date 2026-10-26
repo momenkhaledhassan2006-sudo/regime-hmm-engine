@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+.ipynb_checkpoints/
+.DS_Store
+# MNE / PhysioNet downloads live in ~/mne_data by default
+mne_data/
