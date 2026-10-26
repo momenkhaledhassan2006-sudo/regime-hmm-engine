@@ -57,21 +57,29 @@ $$
 With $\log\alpha_t(k) = \log p(\mathbf{x}_{1:t}, z_t = k)$ and $\log\beta_t(k) = \log p(\mathbf{x}_{t+1:T} \mid z_t = k)$:
 
 $$
-\log\alpha_t(j) = \log b_j(\mathbf{x}_t) + \operatorname{LSE}_i\big[\log\alpha_{t-1}(i) + \log A_{ij}\big],\qquad
-\log\beta_t(i) = \operatorname{LSE}_j\big[\log A_{ij} + \log b_j(\mathbf{x}_{t+1}) + \log\beta_{t+1}(j)\big],
+\log\alpha_t(j) = \log b_j(\mathbf{x}_t) + \mathrm{LSE}_i\big[\log\alpha_{t-1}(i) + \log A_{ij}\big],\qquad
+\log\beta_t(i) = \mathrm{LSE}_j\big[\log A_{ij} + \log b_j(\mathbf{x}_{t+1}) + \log\beta_{t+1}(j)\big],
 $$
 
-where $\operatorname{LSE}$ is `torch.logsumexp`, $\log\alpha_1 = \log\boldsymbol{\pi} + \log \mathbf{b}(\mathbf{x}_1)$ and $\log\beta_T = 0$. The sequence log-likelihood is $\log p(\mathbf{x}_{1:T}) = \operatorname{LSE}_k \log\alpha_T(k)$. No probability is ever multiplied in linear space, so long sequences cannot underflow.
+where $\mathrm{LSE}$ represents `torch.logsumexp`, with the boundary conditions:
+
+$$
+\log\alpha_1 = \log\boldsymbol{\pi} + \log \mathbf{b}(\mathbf{x}_1), \qquad \log\beta_T = 0
+$$
+
+The sequence log-likelihood is $\log p(\mathbf{x}_{1:T}) = \mathrm{LSE}_k \log\alpha_T(k)$. No probability is ever multiplied in linear space, so long sequences cannot underflow.
 
 ### Filtering, smoothing, decoding
 
 $$
-\underbrace{P(z_t = k \mid \mathbf{x}_{1:t}) = \frac{\alpha_t(k)}{\sum_j \alpha_t(j)}}_{\texttt{predict\_proba(causal=True)}},
+\underbrace{P(z_t = k \mid \mathbf{x}_{1:t}) = \frac{\alpha_t(k)}{\sum_j \alpha_t(j)}}_{\text{causal forward filter}},
 \qquad
-\underbrace{P(z_t = k \mid \mathbf{x}_{1:T}) = \frac{\alpha_t(k)\,\beta_t(k)}{p(\mathbf{x}_{1:T})}}_{\texttt{predict\_proba(causal=False)}}.
+\underbrace{P(z_t = k \mid \mathbf{x}_{1:T}) = \frac{\alpha_t(k)\,\beta_t(k)}{p(\mathbf{x}_{1:T})}}_{\text{smoothed posterior}}.
 $$
 
-Viterbi decoding replaces $\operatorname{LSE}$ by $\max$, stores arg-max back-pointers $\psi_t(j)$ and backtracks to obtain $\hat{z}_{1:T} = \arg\max_{z_{1:T}} p(z_{1:T}, \mathbf{x}_{1:T})$.
+In code, `predict_proba(causal=True)` computes the causal forward filter, while `predict_proba(causal=False)` computes the full smoothed posterior.
+
+Viterbi decoding replaces $\mathrm{LSE}$ by $\max$, stores arg-max back-pointers $\psi_t(j)$ and backtracks to obtain $\hat{z}_{1:T} = \arg\max_{z_{1:T}} p(z_{1:T}, \mathbf{x}_{1:T})$.
 
 ### Baum-Welch (EM)
 
